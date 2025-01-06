@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { CiCirclePlus } from "react-icons/ci";
-import { CiCircleMinus } from "react-icons/ci";
+import { CiCirclePlus, CiCircleMinus } from "react-icons/ci";
 
 export default function InputPage() {
+  const [serverTitle, setServerTitle] = useState(""); 
+  const [questionTitle, setQuestionTitle] = useState("");  
   const [answerType, setAnswerType] = useState("");
   const [options, setOptions] = useState([
     { id: 1, placeholder: "", min: "", max: "", rows: "" },
@@ -26,6 +27,10 @@ export default function InputPage() {
   };
 
   const handleOptionChange = (id, field, value) => {
+    if (field === "min" || field === "max") {
+  
+      if (value !== "" && isNaN(value)) return;
+    }
     setOptions(
       options.map((option) =>
         option.id === id ? { ...option, [field]: value } : option
@@ -33,19 +38,42 @@ export default function InputPage() {
     );
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log({ serverTitle, questionTitle, answerType, options });
+    
+    setServerTitle("");
+    setQuestionTitle("");
+    setAnswerType("");
+    setOptions([{ id: 1, placeholder: "", min: "", max: "", rows: "" }]);
+  };
+
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-4xl bg-white p-6 mt-10 rounded-lg shadow-md">
         <h2 className="flex items-center gap-4 text-xl font-bold text-gray-800">
-          <FaArrowLeft className="mt-1" />
-          Add Question
+          <FaArrowLeft className="mt-1" /> Add Question
         </h2>
-        <form className="mt-6 space-y-6">
+        <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
           <div>
+          
+            <input
+              className="w-full p-3 border border-gray-300 rounded-md outline-none shadow-md"
+              type="text"
+              placeholder="Server Title"
+              value={serverTitle}
+              onChange={(e) => setServerTitle(e.target.value)}
+            />
+          </div>
+
+          <div>
+          
             <input
               className="w-full p-3 border border-gray-300 rounded-md outline-none shadow-md"
               type="text"
               placeholder="Question Title"
+              value={questionTitle}
+              onChange={(e) => setQuestionTitle(e.target.value)}
             />
           </div>
 
@@ -69,69 +97,50 @@ export default function InputPage() {
             </select>
           </div>
 
-          {[
-            "number",
-            "textArea",
-            "radio",
-          ].includes(answerType) && (
+          {["number", "textArea", "text", "radio", "checkbox", "slider", "select"].includes(answerType) && (
             <div>
-              <h3 className="font-semibold text-gray-800"></h3>
               {options.map((option, index) => (
-                <div
-                  key={option.id}
-                  className="flex flex-col gap-2 mt-4 border p-3 rounded-md shadow-md"
-                >
-                  <p className="font-semibold text-gray-600">
-                    Option {index + 1}
-                  </p>
+                <div key={option.id} className="flex flex-col gap-2 mt-4 border p-3 rounded-md shadow-md">
+                  <p className="font-semibold text-gray-600">Option {index + 1}</p>
                   <div className="flex flex-wrap items-center gap-4">
                     <input
                       className="flex-1 p-3 border border-gray-300 rounded-md outline-none shadow-md"
-                      type="text"
+                      type="number"
                       placeholder="Placeholder"
                       value={option.placeholder}
-                      onChange={(e) =>
-                        handleOptionChange(
-                          option.id,
-                          "placeholder",
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => handleOptionChange(option.id, "placeholder", e.target.value)}
                     />
-                    <input
-                      className="w-20 p-3 border border-gray-300 rounded-md outline-none shadow-md"
-                      type="number"
-                      placeholder="Min"
-                      value={option.min}
-                      onChange={(e) =>
-                        handleOptionChange(option.id, "min", e.target.value)
-                      }
-                    />
-                    <input
-                      className="w-20 p-3 border border-gray-300 rounded-md outline-none shadow-md"
-                      type="number"
-                      placeholder="Max"
-                      value={option.max}
-                      onChange={(e) =>
-                        handleOptionChange(option.id, "max", e.target.value)
-                      }
-                    />
+                    
+                    {!["radio", "checkbox", "select"].includes(answerType) && (
+                      <>
+                        <input
+                          className="w-20 p-3 border border-gray-300 rounded-md outline-none shadow-md"
+                          type="number"
+                          placeholder="Min"
+                          value={option.min}
+                          onChange={(e) => handleOptionChange(option.id, "min", e.target.value)}
+                        />
+                        <input
+                          className="w-20 p-3 border border-gray-300 rounded-md outline-none shadow-md"
+                          type="number"
+                          placeholder="Max"
+                          value={option.max}
+                          onChange={(e) => handleOptionChange(option.id, "max", e.target.value)}
+                        />
+                      </>
+                    )}
+                    
                     {answerType === "textArea" && (
                       <input
                         className="w-20 p-3 border border-gray-300 rounded-md outline-none shadow-md"
                         type="number"
                         placeholder="Rows"
                         value={option.rows}
-                        onChange={(e) =>
-                          handleOptionChange(option.id, "rows", e.target.value)
-                        }
+                        onChange={(e) => handleOptionChange(option.id, "rows", e.target.value)}
                       />
                     )}
-                    <button
-                      type="button"
-                      onClick={() => removeOption(option.id)}
-                      className="text-red-500 hover:text-red-700 transition"
-                    >
+                    
+                    <button type="button" onClick={() => removeOption(option.id)} className="text-red-500 hover:text-red-700 transition">
                       <CiCircleMinus className="w-full h-auto" />
                     </button>
                   </div>
